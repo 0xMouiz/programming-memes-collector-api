@@ -3,6 +3,7 @@ const express = require("express");
 const axios = require("axios");
 const cheerio = require("cheerio");
 const puppeteer = require("puppeteer");
+// const fetch = require("node-fetch");
 
 const app = express();
 
@@ -12,77 +13,42 @@ const memesWebsites = [
     address: "https://programmerhumor.io/",
     base: "",
   },
-  //   {
-  //     name: "commitstrip",
-  //     address: "https://commitstrip.com/",
-  //     base: "",
-  //   },
+  // {
+  //   name: "commitstrip",
+  //   address: "https://commitstrip.com/",
+  //   base: "",
+  // },
 ];
 
 let memes = [];
 
 const fetchMemes = async () => {
-  for await (const memesWebsite of memesWebsites) {
-    // let imageUrl;
-    // const browser = await puppeteer.launch({ headless: "new" });
-    // const page = await browser.newPage();
+  for (let page = 0; page <= 20; page++) {
+    const response = await fetch(`https://programmerhumor.io/page/${page}/`);
+    const html = await response.text();
+    const $ = cheerio.load(html);
 
-    // await page.goto(memesWebsite.address, {
-    //   waitUntil: "networkidle0",
-    //   //   timeout: 60000,
-    // });
-
-    // let scrollHeight = await page.evaluate(() => {
-    //   return document.documentElement.scrollHeight;
-    // });
-
-    // let previousScrollHeight = 0;
-
-    // while (scrollHeight > previousScrollHeight) {
-    //   previousScrollHeight = scrollHeight;
-    //   await page.evaluate(() => {
-    //     window.scrollTo(0, document.documentElement.scrollHeight);
-    //   });
-    //   await page.waitForTimeout(1000); // ! maybe gotta be removed
-    //   scrollHeight = await page.evaluate(() => {
-    //     return document.documentElement.scrollHeight;
-    //   });
-    // }
-
-    // const html = await page.content();
-    // const $ = cheerio.load(html);
-
-    await axios
-      .get(memesWebsite.address)
-      .then((response) => {
-        const html = response.data;
-        const $ = cheerio.load(html);
-
-        $("a")
-          .filter(function () {
-            return $(this).hasClass("g1-frame");
-          })
-          .each(async function (index) {
-            const title = $(this).attr("title");
-            const img = $(this).find("img");
-            const imageUrl = img.data("src");
-
-            const payload = {
-              title,
-              imageUrl,
-              source: memesWebsite.name,
-            };
-
-            const doubled = memes.find(
-              (meme) => JSON.stringify(meme) === JSON.stringify(payload)
-            );
-            if (!doubled) {
-              memes.push(payload);
-            }
-          });
+    $("a")
+      .filter(function () {
+        return $(this).hasClass("g1-frame");
       })
-      .catch((err) => {
-        // Handle the error
+      .each(async function (index) {
+        const title = $(this).attr("title");
+        const img = $(this).find("img");
+        const imageUrl = img.data("src");
+
+        const payload = {
+          title,
+          imageUrl,
+          // source: memesWebsite.name,
+        };
+
+        const doubled = memes.find(
+          (meme) => JSON.stringify(meme) === JSON.stringify(payload)
+        );
+        if (!doubled) {
+          memes.push(payload);
+        }
       });
   }
 };
@@ -93,7 +59,7 @@ app.get("/", async (req, res, next) => {
 
 app.get("/api/memes", async (req, res, next) => {
   try {
-    await fetchMemes();
+    await fetchMemes(1938);
     return res.json(memes);
   } catch (error) {
     console.error(error);
