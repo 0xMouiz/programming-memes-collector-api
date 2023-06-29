@@ -12,21 +12,24 @@ const memesWebsites = [
     address: "https://programmerhumor.io/",
     base: "",
   },
-//   {
-//     name: "commitstrip",
-//     address: "https://commitstrip.com/",
-//     base: "",
-//   },
+  //   {
+  //     name: "commitstrip",
+  //     address: "https://commitstrip.com/",
+  //     base: "",
+  //   },
 ];
 
 let memes = [];
 
 const fetchMemes = async () => {
   for await (const memesWebsite of memesWebsites) {
-    const browser = await puppeteer.launch({ headless: 'new' });
+    const browser = await puppeteer.launch({ headless: "new" });
     const page = await browser.newPage();
 
-    await page.goto(memesWebsite.address, { waitUntil: "networkidle0" });
+    await page.goto(memesWebsite.address, {
+      waitUntil: "networkidle0",
+      timeout: 60000,
+    });
 
     let scrollHeight = await page.evaluate(() => {
       return document.documentElement.scrollHeight;
@@ -76,6 +79,10 @@ const fetchMemes = async () => {
 };
 
 app.get("/", async (req, res, next) => {
+  return res.send("Welcome to the programming memes API");
+});
+
+app.get("/api/memes", async (req, res, next) => {
   try {
     await fetchMemes();
     return res.json(memes);
