@@ -28,7 +28,7 @@ const fetchMemes = async () => {
 
     await page.goto(memesWebsite.address, {
       waitUntil: "networkidle0",
-      timeout: 60000,
+      //   timeout: 60000,
     });
 
     let scrollHeight = await page.evaluate(() => {
