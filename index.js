@@ -21,9 +21,9 @@ const memesWebsites = [
 
 let memes = [];
 
-const fetchMemes = async () => {
+const fetchMemes = async (pages) => {
   for (let page = 0; page <= 20; page++) {
-    const response = await fetch(`https://programmerhumor.io/page/${page}/`);
+    const response = await fetch(`https://programmerhumor.io/page/${pages}/`);
     const html = await response.text();
     const $ = cheerio.load(html);
 
